@@ -286,11 +286,14 @@ const Solitaire = () => {
 
   const drawCards = () => {
     if (stock.length === 0) {
-      setStock([...waste].reverse());
-      setWaste([]);
+      if (waste.length > 0) {
+        setStock([...waste].reverse());
+        setWaste([]);
+      }
     } else {
-      const drawn = stock.slice(-drawCount);
-      setStock(stock.slice(0, -drawCount));
+      const numToDraw = Math.min(drawCount, stock.length);
+      const drawn = stock.slice(-numToDraw);
+      setStock(stock.slice(0, -numToDraw));
       setWaste([...waste, ...drawn]);
       setMoves(m => m + 1);
     }
@@ -1111,7 +1114,7 @@ const Solitaire = () => {
             <div className="stock" onClick={drawCards}>
               {stock.length > 0 ? (
                 <div className="stock-pile">
-                  {stock.slice(-3).map((card, i) => (
+                  {stock.slice(-Math.min(3, stock.length)).map((card, i, arr) => (
                     <div key={card.id} style={{ position: 'absolute', top: 0, left: i * 2 }}>
                       <Card card={card} faceUp={false} />
                     </div>
@@ -1119,7 +1122,7 @@ const Solitaire = () => {
                 </div>
               ) : (
                 <div className="empty-stock">
-                  <span className="refresh-icon">↻</span>
+                  <span className="refresh-icon">{waste.length > 0 ? '↻' : ''}</span>
                 </div>
               )}
             </div>
