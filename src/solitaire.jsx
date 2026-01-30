@@ -375,6 +375,7 @@ const Solitaire = () => {
         newTableau[targetPileIndex] = [...newTableau[targetPileIndex], ...cardsToMove];
         
         // Calculate how many face-up cards were moved from source
+        /* eslint-disable-next-line no-unused-vars */
         const sourceFaceDownCount = sourcePile.length - tableauFaceUp[draggingSource];
         const movedFaceUpCount = cardsToMove.length; // All moved cards are face-up
         
