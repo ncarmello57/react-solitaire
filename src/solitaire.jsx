@@ -181,6 +181,7 @@ const Solitaire = () => {
   const [drawCount, setDrawCount] = useState(1);
   const [stock, setStock] = useState([]);
   const [waste, setWaste] = useState([]);
+  const [wasteVisible, setWasteVisible] = useState(0);
   const [foundations, setFoundations] = useState([[], [], [], []]);
   const [tableau, setTableau] = useState([[], [], [], [], [], [], []]);
   const [tableauFaceUp, setTableauFaceUp] = useState([1, 1, 1, 1, 1, 1, 1]);
@@ -207,6 +208,7 @@ const Solitaire = () => {
     setTableauFaceUp(newFaceUp);
     setStock(deck.slice(28));
     setWaste([]);
+    setWasteVisible(0);
     setFoundations([[], [], [], []]);
     setMoves(0);
     setGameWon(false);
@@ -289,12 +291,14 @@ const Solitaire = () => {
       if (waste.length > 0) {
         setStock([...waste].reverse());
         setWaste([]);
+        setWasteVisible(0);
       }
     } else {
       const numToDraw = Math.min(drawCount, stock.length);
       const drawn = stock.slice(-numToDraw);
       setStock(stock.slice(0, -numToDraw));
       setWaste([...waste, ...drawn]);
+      setWasteVisible(numToDraw);
       setMoves(m => m + 1);
     }
   };
@@ -326,11 +330,12 @@ const Solitaire = () => {
 
       if (draggingSource === 'waste') {
         setWaste(waste.slice(0, -1));
+        setWasteVisible(v => v - 1);
       } else if (typeof draggingSource === 'number') {
         const newTableau = [...tableau];
         newTableau[draggingSource] = newTableau[draggingSource].slice(0, cardIndex);
         setTableau(newTableau);
-        
+
         const newFaceUp = [...tableauFaceUp];
         const remainingCards = newTableau[draggingSource].length;
         if (remainingCards === 0) {
@@ -360,6 +365,7 @@ const Solitaire = () => {
       if (draggingSource === 'waste') {
         newTableau[targetPileIndex] = [...newTableau[targetPileIndex], card];
         setWaste(waste.slice(0, -1));
+        setWasteVisible(v => v - 1);
         // Add one face-up card to target
         newFaceUp[targetPileIndex] = newFaceUp[targetPileIndex] + 1;
       } else if (typeof draggingSource === 'object' && draggingSource.type === 'foundation') {
@@ -425,6 +431,7 @@ const Solitaire = () => {
 
         if (source === 'waste') {
           setWaste(waste.slice(0, -1));
+          setWasteVisible(v => v - 1);
         } else if (typeof source === 'number') {
           const newTableau = [...tableau];
           newTableau[source] = newTableau[source].slice(0, cardIndex);
@@ -1127,7 +1134,7 @@ const Solitaire = () => {
               )}
             </div>
             <div className="waste-pile">
-              {waste.slice(-(drawCount === 3 ? 3 : 1)).map((card, i, arr) => (
+              {(drawCount === 3 ? waste.slice(waste.length - wasteVisible) : waste.slice(-1)).map((card, i, arr) => (
                 <div 
                   key={card.id} 
                   className="waste-card" 
